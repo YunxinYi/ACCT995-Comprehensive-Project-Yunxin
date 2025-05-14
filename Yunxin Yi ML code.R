@@ -16,7 +16,7 @@ library(tidyverse)
 # Log into wrds ----------------------------------------------------------------
 keyring::key_set("WRDS_USER")
 keyring::key_set("WRDS_PW")
-###
+
 if(exists("wrds")){
   dbDisconnect(wrds)  
 }
