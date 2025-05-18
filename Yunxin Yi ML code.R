@@ -88,6 +88,9 @@ final_data <- merged_data %>%
   )|> 
   drop_na()
 
+# Table 2 descriptive statistics
+summary(final_data)
+
 
 # Parallel processing setup ----------------------------------------------------
 configure_parallel_xgb <- function(total_cores = parallel::detectCores(), 
@@ -306,6 +309,7 @@ saveRDS(tuned_results, "C:/Users/y371y552/Desktop/tuned_results_3.rds")
 tuned_results <- readRDS("C:/Users/y371y552/Desktop/tuned_results_3.rds")
 
 # Visualize our Tuning results
+# Figure 1 panel A
 tuned_results |>
   collect_metrics(summarize = TRUE) |>
   filter(.metric == "mae") |>
@@ -542,6 +546,7 @@ preds_with_id <- window_results |>
   group_by(.row) |> 
   filter(n()==10) |> 
   ungroup()
+# Figure 1 Panel B
 # Plot Out-of-Sample MAE by Year
 performance_over_time <- preds_with_id |>
   group_by(wflow_id, year) |>
@@ -672,6 +677,7 @@ lm_breakdown
 ridge_breakdown <- predict_parts(explainer_ridge, new_observation = vip_train[1, ], type = "shap")
 plot(ridge_breakdown)
 
+# Figure 2 Panel A
 # Now let's talk about global model explanation
 library(DALEX)
 library(ggplot2)
@@ -743,6 +749,7 @@ ggplot_pdp <- function(obj, x) {
 # Generate PDP for EARN_change
 pdp_EARN <- model_profile(explainer_xgb, N = 1000, variables = "EARN")
 
+# Figure 3
 # Plot PDP
 ggplot_pdp(pdp_EARN, "EARN") +
   labs(
@@ -753,7 +760,7 @@ ggplot_pdp(pdp_EARN, "EARN") +
   ) +
   theme_minimal()
 
-
+# Figure 4
 # Generate PDP for efftax
 pdp_efftax <- model_profile(explainer_xgb, N = 1000, variables = "efftax")
 
@@ -766,8 +773,8 @@ ggplot_pdp(pdp_efftax, "efftax") +
     color = NULL
   ) +
   theme_minimal()
-
-# Generate PDP for spr
+# Figure 5
+# Generate PDP for dpr
 pdp_dpr <- model_profile(explainer_xgb, N = 1000, variables = "dpr")
 
 # Plot PDP
@@ -841,6 +848,7 @@ plot(mp)
 cp_profile <- predict_profile(explainer_xgb, new_observation = vip_train[1, ])
 plot(cp_profile)
 
+# Figure 2 Panel B
 #Load library
 library(hstats)
 
@@ -873,19 +881,21 @@ partial_dep(explainer_xgb, v = "EARN", BY = "efftax", type = "accumulated") |>
 partial_dep(explainer_xgb, v = "EARN", BY = "dpr", type = "accumulated") |> 
   plot(show_points = FALSE)
 
+# Fogure 6 Panel A
 # Strongest relative interaction (different visualizations)
 ice(explainer_xgb, v = "EARN", BY = "dpr") |> 
   plot(center = TRUE)
 
-
+# Fogure 7 Panel A
 # Strongest relative interaction (different visualizations)
 # now we can really see it working 
 ice(explainer_xgb, v = "EARN", BY = "efftax") |> 
   plot(center = TRUE)
 
-#pretty coarse but you can see the interactions
+# # Fogure 6 Panel B
 partial_dep(explainer_xgb, v = c("EARN", "dpr"), grid_size = 2000) |> 
   plot()
+# Fogure 7 Panel B
 partial_dep(explainer_xgb, v = c("EARN", "efftax"), grid_size = 2000) |> 
   plot()
 pd_importance(s) |> 
